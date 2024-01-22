@@ -21,10 +21,17 @@ import * as tf from '@tensorflow/tfjs';
 import * as paper from 'paper';
 import dat from 'dat.gui';
 import Stats from 'stats.js';
-import "babel-polyfill";
+import 'babel-polyfill';
 
-import {drawKeypoints, drawPoint, drawSkeleton, isMobile, toggleLoadingUI, setStatusText} from './utils/demoUtils';
-import {SVGUtils} from './utils/svgUtils'
+import {
+  drawKeypoints,
+  drawPoint,
+  drawSkeleton,
+  isMobile,
+  toggleLoadingUI,
+  setStatusText,
+} from './utils/demoUtils';
+import {SVGUtils} from './utils/svgUtils';
 import {PoseIllustration} from './illustrationGen/illustration';
 import {Skeleton, facePartName2Index} from './illustrationGen/skeleton';
 import {FileUtils} from './utils/fileUtils';
@@ -142,7 +149,7 @@ function setupGui(cameras) {
  * Sets up a frames per second panel on the top-left of the window
  */
 function setupFPS() {
-  stats.showPanel(0);  // 0: fps, 1: ms, 2: mb, 3+: custom
+  stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.getElementById('main').appendChild(stats.dom);
 }
 
@@ -166,7 +173,7 @@ function detectPoseInRealTime(video) {
     stats.begin();
 
     let poses = [];
-   
+
     videoCtx.clearRect(0, 0, videoWidth, videoHeight);
     // Draw video
     videoCtx.save();
@@ -183,7 +190,7 @@ function detectPoseInRealTime(video) {
       decodingMethod: 'multi-person',
       maxDetections: 1,
       scoreThreshold: minPartConfidence,
-      nmsRadius: nmsRadius
+      nmsRadius: nmsRadius,
     });
 
     poses = poses.concat(all_poses);
@@ -224,8 +231,8 @@ function detectPoseInRealTime(video) {
     }
 
     canvasScope.project.activeLayer.scale(
-      canvasWidth / videoWidth, 
-      canvasHeight / videoHeight, 
+      canvasWidth / videoWidth,
+      canvasHeight / videoHeight,
       new canvasScope.Point(0, 0));
 
     // End monitoring code for frames per second
@@ -244,10 +251,10 @@ function setupCanvas() {
     canvasHeight = canvasWidth;
     videoWidth *= 0.7;
     videoHeight *= 0.7;
-  }  
+  }
 
   canvasScope = paper.default;
-  let canvas = document.querySelector('.illustration-canvas');;
+  let canvas = document.querySelector('.illustration-canvas');
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
   canvasScope.setup(canvas);
@@ -267,13 +274,12 @@ export async function bindPage() {
     outputStride: defaultStride,
     inputResolution: defaultInputResolution,
     multiplier: defaultMultiplier,
-    quantBytes: defaultQuantBytes
+    quantBytes: defaultQuantBytes,
   });
   setStatusText('Loading FaceMesh model...');
   facemesh = await facemesh_module.load();
 
   setStatusText('Loading Avatar file...');
-  let t0 = new Date();
   await parseSVG(Object.values(avatarSvgs)[0]);
 
   setStatusText('Setting up camera...');
@@ -289,14 +295,14 @@ export async function bindPage() {
 
   setupGui([], posenet);
   setupFPS();
-  
+
   toggleLoadingUI(false);
   detectPoseInRealTime(video, posenet);
 }
 
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-FileUtils.setDragDropHandler((result) => {parseSVG(result)});
+FileUtils.setDragDropHandler((result) => parseSVG(result));
 
 async function parseSVG(target) {
   let svgScope = await SVGUtils.importSVG(target /* SVG string or file path */);
@@ -304,5 +310,5 @@ async function parseSVG(target) {
   illustration = new PoseIllustration(canvasScope);
   illustration.bindSkeleton(skeleton, svgScope);
 }
-    
+
 bindPage();
